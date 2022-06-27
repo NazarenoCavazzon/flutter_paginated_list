@@ -29,6 +29,8 @@ class PaginatedList<T> extends StatelessWidget {
     ),
     this.physics = const BouncingScrollPhysics(),
     this.scrollDirection = Axis.vertical,
+    this.deleteIconAlignment = Alignment.centerRight,
+    this.padding = EdgeInsets.zero,
     required this.items,
     required this.isRecentSearch,
     required this.isLastPage,
@@ -64,60 +66,69 @@ class PaginatedList<T> extends StatelessWidget {
   /// Whether the list is displaying recent searches.
   final bool isRecentSearch;
 
-  /// Whether the list is displaying the last page of results.
+  /// Whenever the list is displaying the last page of results.
   final bool isLastPage;
+
+  /// The padding of the [PaginatedList].
+  final EdgeInsetsGeometry padding;
+
+  /// The alignment of the [deleteIcon].
+  final Alignment deleteIconAlignment;
 
   @override
   Widget build(BuildContext context) {
     final itemCount = items.length + (isRecentSearch || isLastPage ? 0 : 1);
-    return ListView.builder(
-      scrollDirection: scrollDirection,
-      physics: physics,
-      itemCount: itemCount,
-      itemBuilder: (context, index) {
-        return Stack(
-          children: [
-            InkWell(
-              onTap: () => onTap?.call(index),
-              child: Builder(
-                builder: (context) {
-                  if (index == items.length) {
-                    return VisibilityDetector(
-                      key: const Key('loading-more'),
-                      onVisibilityChanged: (visibility) {
-                        if (visibility.visibleFraction == 1) {
-                          onLoadMore?.call(index);
-                        }
-                      },
-                      child: loadingIndicator,
-                    );
-                  } else {
-                    final item = items[index];
-                    return builder?.call(item, index) ?? const SizedBox();
-                  }
-                },
+    return Padding(
+      padding: padding,
+      child: ListView.builder(
+        scrollDirection: scrollDirection,
+        physics: physics,
+        itemCount: itemCount,
+        itemBuilder: (context, index) {
+          return Stack(
+            children: [
+              InkWell(
+                onTap: () => onTap?.call(index),
+                child: Builder(
+                  builder: (context) {
+                    if (index == items.length) {
+                      return VisibilityDetector(
+                        key: const Key('loading-more'),
+                        onVisibilityChanged: (visibility) {
+                          if (visibility.visibleFraction == 1) {
+                            onLoadMore?.call(index);
+                          }
+                        },
+                        child: loadingIndicator,
+                      );
+                    } else {
+                      final item = items[index];
+                      return builder?.call(item, index) ?? const SizedBox();
+                    }
+                  },
+                ),
               ),
-            ),
-            if (isRecentSearch)
-              Builder(
-                builder: (context) {
-                  final item = items[index];
-                  return Align(
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
-                      onPressed: () {
-                        if (item != null) {
-                          onRemove?.call(item, index);
-                        }
-                      },
-                      icon: deleteIcon,
-                    ),
-                  );
-                },
-              )
-          ],
-        );
-      },
+              if (isRecentSearch)
+                Builder(
+                  builder: (context) {
+                    final item = items[index];
+                    return Align(
+                      alignment: deleteIconAlignment,
+                      child: IconButton(
+                        onPressed: () {
+                          if (item != null) {
+                            onRemove?.call(item, index);
+                          }
+                        },
+                        icon: deleteIcon,
+                      ),
+                    );
+                  },
+                )
+            ],
+          );
+        },
+      ),
     );
   }
 }

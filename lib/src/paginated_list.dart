@@ -8,14 +8,12 @@ import 'package:visibility_detector/visibility_detector.dart';
 /// can be infinite, meaning that it will request additional items as the
 /// user scrolls.
 /// {@endtemplate}
-class PaginatedList<T> extends StatelessWidget {
+class PaginatedList<T> extends StatefulWidget {
   /// {@macro paginated_list}
   const PaginatedList({
     super.key,
     this.onTap,
-    this.onLoadMore,
     this.onRemove,
-    this.builder,
     this.loadingIndicator = const Padding(
       padding: EdgeInsets.only(bottom: 20),
       child: Center(
@@ -49,8 +47,10 @@ class PaginatedList<T> extends StatelessWidget {
     this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
     this.semanticChildCount,
     this.listViewKey,
+    this.isRecentSearch = false,
+    required this.onLoadMore,
+    required this.builder,
     required this.items,
-    required this.isRecentSearch,
     required this.isLastPage,
   });
 
@@ -58,16 +58,16 @@ class PaginatedList<T> extends StatelessWidget {
   final List<T> items;
 
   /// The function that is called when the user taps an item.
-  final Function(int index)? onTap;
+  final dynamic Function(int index)? onTap;
 
   /// The function that is called when the user requests more items.
-  final Function(int index)? onLoadMore;
+  final dynamic Function() onLoadMore;
 
   /// The function that is called when the user taps the delete icon.
-  final Function(T item, int index)? onRemove;
+  final dynamic Function(T item, int index)? onRemove;
 
   /// The function that is called to build the items of the list.
-  final Widget Function(T item, int index)? builder;
+  final Widget Function(T item, int index) builder;
 
   /// The widget to display while the list is loading.
   final Widget loadingIndicator;
@@ -145,67 +145,83 @@ class PaginatedList<T> extends StatelessWidget {
   final Alignment deleteIconAlignment;
 
   @override
+  State<PaginatedList<T>> createState() => _PaginatedListState<T>();
+}
+
+class _PaginatedListState<T> extends State<PaginatedList<T>> {
+  ValueNotifier<double> visibleFraction = ValueNotifier<double>(0);
+
+  @override
+  void initState() {
+    super.initState();
+    visibleFraction.addListener(() async {
+      while (visibleFraction.value == 1 && !widget.isLastPage) {
+        await widget.onLoadMore.call();
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final itemCount = items.length + (isRecentSearch || isLastPage ? 0 : 1);
+    final itemCount = widget.items.length +
+        (widget.isRecentSearch || widget.isLastPage ? 0 : 1);
     return ListView.builder(
-      key: listViewKey,
-      scrollDirection: scrollDirection,
-      reverse: reverse,
-      controller: controller,
-      primary: primary,
-      restorationId: restorationId,
-      semanticChildCount: semanticChildCount,
-      shrinkWrap: shrinkWrap,
-      prototypeItem: prototypeItem,
-      keyboardDismissBehavior: keyboardDismissBehavior,
-      padding: padding,
-      itemExtent: itemExtent,
-      findChildIndexCallback: findChildIndexCallback,
-      dragStartBehavior: dragStartBehavior,
-      addAutomaticKeepAlives: addAutomaticKeepAlives,
-      addRepaintBoundaries: addRepaintBoundaries,
-      addSemanticIndexes: addSemanticIndexes,
-      cacheExtent: cacheExtent,
-      clipBehavior: clipBehavior,
-      physics: physics,
+      key: widget.listViewKey,
+      scrollDirection: widget.scrollDirection,
+      reverse: widget.reverse,
+      controller: widget.controller,
+      primary: widget.primary,
+      restorationId: widget.restorationId,
+      semanticChildCount: widget.semanticChildCount,
+      shrinkWrap: widget.shrinkWrap,
+      prototypeItem: widget.prototypeItem,
+      keyboardDismissBehavior: widget.keyboardDismissBehavior,
+      padding: widget.padding,
+      itemExtent: widget.itemExtent,
+      findChildIndexCallback: widget.findChildIndexCallback,
+      dragStartBehavior: widget.dragStartBehavior,
+      addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
+      addRepaintBoundaries: widget.addRepaintBoundaries,
+      addSemanticIndexes: widget.addSemanticIndexes,
+      cacheExtent: widget.cacheExtent,
+      clipBehavior: widget.clipBehavior,
+      physics: widget.physics,
       itemCount: itemCount,
       itemBuilder: (context, index) {
         return Stack(
           children: [
             InkWell(
-              onTap: () => onTap?.call(index),
+              onTap: () => widget.onTap?.call(index),
               child: Builder(
                 builder: (context) {
-                  if (index == items.length) {
+                  if (index == widget.items.length) {
                     return VisibilityDetector(
                       key: const Key('loading-more'),
                       onVisibilityChanged: (visibility) {
-                        if (visibility.visibleFraction == 1) {
-                          onLoadMore?.call(index);
-                        }
+                        visibleFraction.value = visibility.visibleFraction;
                       },
-                      child: loadingIndicator,
+                      child: widget.loadingIndicator,
                     );
                   } else {
-                    final item = items[index];
-                    return builder?.call(item, index) ?? const SizedBox();
+                    final item = widget.items[index];
+                    return widget.builder.call(item, index);
                   }
                 },
               ),
             ),
-            if (isRecentSearch)
+            if (widget.isRecentSearch)
               Builder(
                 builder: (context) {
-                  final item = items[index];
+                  final item = widget.items[index];
                   return Align(
-                    alignment: deleteIconAlignment,
+                    alignment: widget.deleteIconAlignment,
                     child: IconButton(
                       onPressed: () {
                         if (item != null) {
-                          onRemove?.call(item, index);
+                          widget.onRemove?.call(item, index);
                         }
                       },
-                      icon: deleteIcon,
+                      icon: widget.deleteIcon,
                     ),
                   );
                 },

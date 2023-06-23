@@ -2,20 +2,18 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-/// {@template paginated_list}
-/// A Paginated List widget that displays a list of items in a scrollable
-/// container. The list can be scrolled horizontally or vertically. The list
+/// {@template paginated_grid}
+/// A Paginated Grid widget that displays a grid of items in a scrollable
+/// container. The list can be scrolled horizontally or vertically. The grid
 /// can be infinite, meaning that it will request additional items as the
 /// user scrolls.
 /// {@endtemplate}
-class PaginatedList<T> extends StatelessWidget {
-  /// {@macro paginated_list}
-  const PaginatedList({
+class PaginatedGrid<T> extends StatelessWidget {
+  /// {@macro paginated_grid}
+  const PaginatedGrid({
     super.key,
     this.onTap,
-    this.onLoadMore,
     this.onRemove,
-    this.builder,
     this.loadingIndicator = const Padding(
       padding: EdgeInsets.only(bottom: 20),
       child: Center(
@@ -40,34 +38,35 @@ class PaginatedList<T> extends StatelessWidget {
     this.dragStartBehavior = DragStartBehavior.start,
     this.findChildIndexCallback,
     this.cacheExtent,
-    this.itemExtent,
     this.primary,
     this.reverse = false,
     this.shrinkWrap = false,
-    this.prototypeItem,
     this.restorationId,
     this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
     this.semanticChildCount,
     this.listViewKey,
+    this.isRecentSearch = false,
+    required this.onLoadMore,
+    required this.builder,
     required this.items,
-    required this.isRecentSearch,
     required this.isLastPage,
+    required this.gridDelegate,
   });
 
   /// The list of items to display.
   final List<T> items;
 
   /// The function that is called when the user taps an item.
-  final Function(int index)? onTap;
+  final dynamic Function(int index)? onTap;
 
   /// The function that is called when the user requests more items.
-  final Function(int index)? onLoadMore;
+  final dynamic Function() onLoadMore;
 
   /// The function that is called when the user taps the delete icon.
-  final Function(T item, int index)? onRemove;
+  final dynamic Function(T item, int index)? onRemove;
 
   /// The function that is called to build the items of the list.
-  final Widget Function(T item, int index)? builder;
+  final Widget Function(T item, int index) builder;
 
   /// The widget to display while the list is loading.
   final Widget loadingIndicator;
@@ -111,9 +110,6 @@ class PaginatedList<T> extends StatelessWidget {
   /// The ListView [findChildIndexCallback] parameter.
   final int? Function(Key)? findChildIndexCallback;
 
-  /// The ListView [itemExtent] parameter.
-  final double? itemExtent;
-
   /// The ListView [primary] parameter.
   final bool? primary;
 
@@ -122,9 +118,6 @@ class PaginatedList<T> extends StatelessWidget {
 
   /// The ListView [shrinkWrap] parameter.
   final bool shrinkWrap;
-
-  /// The ListView [prototypeItem] parameter.
-  final Widget? prototypeItem;
 
   /// The ListView [restorationId] parameter.
   final String? restorationId;
@@ -138,16 +131,19 @@ class PaginatedList<T> extends StatelessWidget {
   /// The ListView [listViewKey] parameter.
   final Key? listViewKey;
 
-  /// The padding of the [PaginatedList].
+  /// The padding of the [PaginatedGrid].
   final EdgeInsetsGeometry padding;
 
   /// The alignment of the [deleteIcon].
   final Alignment deleteIconAlignment;
 
+  /// The delegate that controls the size and position of the children.
+  final SliverGridDelegate gridDelegate;
+
   @override
   Widget build(BuildContext context) {
     final itemCount = items.length + (isRecentSearch || isLastPage ? 0 : 1);
-    return ListView.builder(
+    return GridView.builder(
       key: listViewKey,
       scrollDirection: scrollDirection,
       reverse: reverse,
@@ -156,10 +152,9 @@ class PaginatedList<T> extends StatelessWidget {
       restorationId: restorationId,
       semanticChildCount: semanticChildCount,
       shrinkWrap: shrinkWrap,
-      prototypeItem: prototypeItem,
       keyboardDismissBehavior: keyboardDismissBehavior,
       padding: padding,
-      itemExtent: itemExtent,
+      gridDelegate: gridDelegate,
       findChildIndexCallback: findChildIndexCallback,
       dragStartBehavior: dragStartBehavior,
       addAutomaticKeepAlives: addAutomaticKeepAlives,
@@ -181,14 +176,14 @@ class PaginatedList<T> extends StatelessWidget {
                       key: const Key('loading-more'),
                       onVisibilityChanged: (visibility) {
                         if (visibility.visibleFraction == 1) {
-                          onLoadMore?.call(index);
+                          onLoadMore.call();
                         }
                       },
                       child: loadingIndicator,
                     );
                   } else {
                     final item = items[index];
-                    return builder?.call(item, index) ?? const SizedBox();
+                    return builder.call(item, index);
                   }
                 },
               ),

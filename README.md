@@ -29,7 +29,7 @@ PaginatedList<Movie>(
     items: state.movies,
     isRecentSearch: false,
     isLastPage: state.isLastPage,
-    onLoadMore: () => context.read<MovieBloc>().loadMore(),
+    onLoadMore: (index) => context.read<MovieBloc>().loadMore(),
     builder: (movie, index) => SearchItem(
         subtitle: movie.overview,
         title: movie.title,

@@ -1,3 +1,5 @@
+## [1.1.0] - update to dart 3
+
 ## [1.0.2] - ListView Parameters
 
 - Now we pass the padding to the ListViewBuilder instead of using a padding widget

@@ -1,3 +1,7 @@
+## [1.2.0] - Grid View support
+
+- PaginatedGrid added
+
 ## [1.1.0] - update to dart 3
 
 ## [1.0.2] - ListView Parameters

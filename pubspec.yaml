@@ -1,6 +1,6 @@
 name: paginated_list
 description: A Paginated List widget that displays a list of items using pagination.
-version: 1.1.0
+version: 1.2.0
 homepage: https://github.com/NazarenoCavazzon/flutter_paginated_list
 
 environment:

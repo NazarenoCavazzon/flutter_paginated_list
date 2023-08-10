@@ -58,13 +58,13 @@ class PaginatedList<T> extends StatelessWidget {
   final List<T> items;
 
   /// The function that is called when the user taps an item.
-  final Function(int index)? onTap;
+  final void Function(int index)? onTap;
 
   /// The function that is called when the user requests more items.
-  final Function(int index)? onLoadMore;
+  final void Function(int index)? onLoadMore;
 
   /// The function that is called when the user taps the delete icon.
-  final Function(T item, int index)? onRemove;
+  final void Function(T item, int index)? onRemove;
 
   /// The function that is called to build the items of the list.
   final Widget Function(T item, int index)? builder;

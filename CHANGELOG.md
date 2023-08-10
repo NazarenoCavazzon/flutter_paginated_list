@@ -1,3 +1,7 @@
+## [1.2.1] - HTTP package removed
+
+- HTTP package removed from dependencies
+
 ## [1.2.0] - Grid View support
 
 - PaginatedGrid added

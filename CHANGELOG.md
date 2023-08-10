@@ -1,3 +1,7 @@
+## [1.2.2] - StackFit parameter
+
+- StackFit can be passed as a parameter now
+
 ## [1.2.1] - HTTP package removed
 
 - HTTP package removed from dependencies

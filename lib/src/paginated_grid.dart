@@ -11,6 +11,11 @@ import 'package:visibility_detector/visibility_detector.dart';
 class PaginatedGrid<T> extends StatelessWidget {
   /// {@macro paginated_grid}
   const PaginatedGrid({
+    required this.onLoadMore,
+    required this.builder,
+    required this.items,
+    required this.isLastPage,
+    required this.gridDelegate,
     super.key,
     this.onTap,
     this.onRemove,
@@ -46,11 +51,7 @@ class PaginatedGrid<T> extends StatelessWidget {
     this.semanticChildCount,
     this.listViewKey,
     this.isRecentSearch = false,
-    required this.onLoadMore,
-    required this.builder,
-    required this.items,
-    required this.isLastPage,
-    required this.gridDelegate,
+    this.stackFit = StackFit.passthrough,
   });
 
   /// The list of items to display.
@@ -139,6 +140,9 @@ class PaginatedGrid<T> extends StatelessWidget {
 
   /// The delegate that controls the size and position of the children.
   final SliverGridDelegate gridDelegate;
+
+  /// The [StackFit] for the [PaginatedGrid] [Stack].
+  final StackFit stackFit;
 
   @override
   Widget build(BuildContext context) {

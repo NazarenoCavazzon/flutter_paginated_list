@@ -113,7 +113,6 @@ class _ViewMovieState extends State<ViewMovie> {
                         mainAxisSpacing: 20,
                         childAspectRatio: 0.7,
                       ),
-                      isRecentSearch: false,
                       isLastPage: state.isLastPage,
                       onLoadMore: () => context.read<MovieBloc>().loadMore(),
                       builder: (movie, index) {

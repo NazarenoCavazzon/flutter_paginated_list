@@ -37,6 +37,33 @@ PaginatedList<Movie>(
     ),
 ),
 ```
+
+or if you need a grid view:
+
+```dart
+PaginatedGrid<Movie>(
+    loadingIndicator: const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: Center(
+            child: CircularProgressIndicator(color: Colors.black),
+        ),
+    ),
+    items: state.movies,
+    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 20,
+        mainAxisSpacing: 20,
+        childAspectRatio: 0.7,
+    ),
+    isLastPage: state.isLastPage,
+    onLoadMore: () => context.read<MovieBloc>().loadMore(),
+    builder: (movie, index) => SearchItem(
+        subtitle: movie.overview,
+        title: movie.title,
+        imageUrl: movie.posterPath ?? '',
+    ),
+),
+```
 The `PaginatedList` receive a **type** as you can see in the example above, this is what you're going to receive as the first parameter in the builder and will determinate the type of the elements of the **items** list. 
 
 The **onLoadMore** function is going to be called whenever the last item is 100% visible, here is where you should put the function that will add more items to the **items** list.

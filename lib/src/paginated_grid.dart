@@ -170,6 +170,7 @@ class PaginatedGrid<T> extends StatelessWidget {
       itemCount: itemCount,
       itemBuilder: (context, index) {
         return Stack(
+          fit: stackFit,
           children: [
             InkWell(
               onTap: () => onTap?.call(index),

@@ -1,3 +1,7 @@
+## [1.2.3] - StackFit applied
+
+- StackFit applied to Stack widget
+
 ## [1.2.2] - StackFit parameter
 
 - StackFit can be passed as a parameter now

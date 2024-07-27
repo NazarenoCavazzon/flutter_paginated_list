@@ -172,27 +172,19 @@ class PaginatedList<T> extends StatelessWidget {
       itemBuilder: (context, index) {
         return Stack(
           children: [
-            InkWell(
-              onTap: () => onTap?.call(index),
-              child: Builder(
-                builder: (context) {
-                  if (index == items.length) {
-                    return VisibilityDetector(
-                      key: const Key('loading-more'),
-                      onVisibilityChanged: (visibility) {
-                        if (visibility.visibleFraction == 1) {
-                          onLoadMore?.call(index);
-                        }
-                      },
-                      child: loadingIndicator,
-                    );
-                  } else {
-                    final item = items[index];
-                    return builder?.call(item, index) ?? const SizedBox();
-                  }
-                },
-              ),
+            Builder(
+              builder: (context) {
+                if (onTap != null) {
+                  return InkWell(
+                    onTap: () => onTap?.call(index),
+                    child: _contentBuilder(context, index),
+                  );
+                } else {
+                  return _contentBuilder(context, index);
+                }
+              },
             ),
+
             if (isRecentSearch)
               Builder(
                 builder: (context) {
@@ -215,4 +207,26 @@ class PaginatedList<T> extends StatelessWidget {
       },
     );
   }
+
+  Widget _contentBuilder(BuildContext context, int index) {
+    return Builder(
+      builder: (context) {
+        if (index == items.length) {
+          return VisibilityDetector(
+            key: const Key('loading-more'),
+            onVisibilityChanged: (visibility) {
+              if (visibility.visibleFraction == 1) {
+                onLoadMore?.call(index);
+              }
+            },
+            child: loadingIndicator,
+          );
+        } else {
+          final item = items[index];
+          return builder?.call(item, index) ?? const SizedBox();
+        }
+      },
+    );
+  }
 }
+
